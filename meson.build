@@ -87,11 +87,11 @@ else
 endif
 
 _check_prefix = []
-conf_data = configuration_data()
+getarch_data = configuration_data()
 is_win = host_machine.system() == 'windows' or host_machine.system() == 'cygwin'
-conf_data.set('OS_WINDOWS', is_win)
+getarch_data.set('OS_WINDOWS', is_win)
 hostcpu = host_machine.cpu_family()
-conf_data.set('ARCH', hostcpu.to_upper())
+getarch_data.set('ARCH', hostcpu.to_upper())
 
 defarch_array = [
  # {'system': ['windows', 'cygwin'], 'def': ['OS_WINDOWS']},
@@ -115,12 +115,12 @@ defarch_array = [
 foreach arch : defarch_array
   is_cpu = hostcpu in arch['cpu']
   foreach def : arch['def']
-    conf_data.set(def, is_cpu)
+    getarch_data.set(def, is_cpu)
   endforeach
 endforeach
 
 configure_file(output : 'getarch_conf.h',
-               configuration : conf_data)
+               configuration : getarch_data)
 
 # Makefile.system
 cpu_fam = target_machine.cpu_family()
