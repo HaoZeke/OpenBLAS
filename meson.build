@@ -494,17 +494,11 @@ if cc.symbols_have_underscore_prefix()
 endif
 
 # __64__ and friends
-bitness_code = '''
-#include <stdio.h>
-int main() {
-    printf("%d\n", (int)(sizeof(void*) * 8));
-    return 0;
-}
-'''
-
-bitness_result = cc.run(bitness_code, name: 'Get Bitness')
-bitness = bitness_result.stdout().strip()
-config_h_dat.set10(f'__@bitness@BIT__', true)
+# NOTE(rg):: This is wrong on specialist/niche platforms [1, 2]
+# [1] https://stackoverflow.com/a/11707069/1895378
+# [2] https://stackoverflow.com/a/3853329/1895378
+vptrsize = cc.sizeof('void*') * 8
+config_h_dat.set10(f'__@vptrsize@BIT__', true)
 
 # End of c_check
 
