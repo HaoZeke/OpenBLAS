@@ -466,10 +466,60 @@ symb_defs = {
 
 # config.h file generation
 
-_config_h = meson.current_build_dir() / 'config.h'
-_makefile_conf = meson.current_build_dir() / 'Makefile.conf'
-run_command('./c_check', _makefile_conf, _config_h, cc_id, check: true)
-run_command('./f_check', _makefile_conf, _config_h, fc_id, check: true)
+# TODO(rg) : Should these be host or build or target?
+
+config_h_dat = configuration_data()
+
+# Start of c_check
+
+hm_sys = host_machine.system().to_upper()
+hm_cpu = host_machine.cpu().to_upper()
+hm_ccid = cc.get_id().to_upper()
+hm_fcid = fc.get_id().to_upper()
+hm_isc11 = cc.has_header('stdatomic.h')
+has_thread = dependency('threads', required: false)
+
+config_h_dat.set10(f'ARCH_@hm_cpu@', true)
+config_h_dat.set10(f'OS_@hm_sys@', true)
+config_h_dat.set10(f'C_@hm_ccid@', true)
+config_h_dat.set10('HAVE_C11', hm_isc11)
+
+if hm_sys == 'LINUX' and has_thread.found()
+  # TODO(rg): This seems oddly specific..
+  config_h_dat.set('PTHREAD_CREATE_FUNC', 'pthread_create')
+endif
+
+if cc.symbols_have_underscore_prefix()
+    config_h_dat.set10('FUNDERSCORE', true)
+endif
+
+# __64__ and friends
+bitness_code = '''
+#include <stdio.h>
+int main() {
+    printf("%d\n", (int)(sizeof(void*) * 8));
+    return 0;
+}
+'''
+
+bitness_result = cc.run(bitness_code, name: 'Get Bitness')
+bitness = bitness_result.stdout().strip()
+config_h_dat.set10(f'__@bitness@BIT__', true)
+
+# End of c_check
+
+# Start of f_check
+
+# End of f_check
+
+configure_file(output : '_conf_meson.h',
+               configuration : config_h_dat)
+
+_config_1_path = meson.current_build_dir() / '_config_1.h'
+_join_files_py = '../join_files.py'
+# run_command('./c_check', 'Makefile.conf', _config_1_path, cc_id, check: true)
+run_command('./f_check', 'Makefile.conf', _config_1_path, fc_id, check: true)
+error('Stop')
 
 run_command(cc_id, '-o', 'getarch', 'getarch.c', 'cpuid.S', check: true)
 _getarch_1_result = run_command('./getarch', '1', check: true, capture: true)
