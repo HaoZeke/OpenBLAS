@@ -502,18 +502,65 @@ config_h_dat.set10(f'__@vptrsize@BIT__', true)
 
 # End of c_check
 
+fs = import('fs')
 # Start of f_check
 
+# XXX(rg): This is actually to be set via compile and symbol name checks in f_check
+f77_undercode = '''
+      real function fakefun()
+      fakefun = 0
+      return
+      end
+      program main
+      end
+'''
+
+if fc.get_id() == 'gcc'
+  config_h_dat.set('BUNDERSCORE', '_')
+  config_h_dat.set10('NEEDBUNDERSCORE', true)
+endif
+
+# if fc.symbols_have_underscore_prefix()
+#     config_h_dat.set10('BUNDERSCORE', true)
+# endif
+
+
 # End of f_check
+
+# Start getarch
+
+# Define a C code snippet to check for the CMOV feature
+cmov_code = '''
+#include <stdio.h>
+#include <cpuid.h>
+
+int main() {
+    unsigned int eax, ebx, ecx, edx;
+    __cpuid(1, eax, ebx, ecx, edx);
+
+    if (edx & (1 << 24)) {
+        printf("1");
+    } else {
+        printf("0");
+    }
+
+    return 0;
+}
+'''
+
+# Run the CMOV detection code
+cmov_result = cc.run(cmov_code, name: 'Check CMOV Feature')
+cmov_supported = cmov_result.stdout().strip() == '1'
+
+# End getarch
 
 configure_file(output : '_conf_meson.h',
                configuration : config_h_dat)
 
-_config_1_path = meson.current_build_dir() / '_config_1.h'
-_join_files_py = '../join_files.py'
+# _config_1_path = meson.current_build_dir() / '_config_1.h'
+# _join_files_py = '../join_files.py'
 # run_command('./c_check', 'Makefile.conf', _config_1_path, cc_id, check: true)
-run_command('./f_check', 'Makefile.conf', _config_1_path, fc_id, check: true)
-error('Stop')
+# run_command('./f_check', 'Makefile.conf', _config_1_path, fc_id, check: true)
 
 run_command(cc_id, '-o', 'getarch', 'getarch.c', 'cpuid.S', check: true)
 _getarch_1_result = run_command('./getarch', '1', check: true, capture: true)
@@ -549,6 +596,18 @@ run_command(py3,
             _makefile_conf,
             check: true)
 
+error('Stop')
+_config_for_getarch_2nd_h = custom_target('_config_for_getarch_2nd_h',
+                                          output: '_config_for_getarch_2nd.h',
+                                          command: [
+                                            py3,
+                                            _join_files_py,
+                                            _config_1_path,
+                                            _config_2h,
+                                          ],
+                                          depends: [_config_2h],
+                                          capture: true,
+                                         )
 
 _read_config_py = './read_config.py'
 
@@ -599,8 +658,6 @@ openblas = both_libraries('openblas',
 openblas_static = openblas.get_static_lib()
 
 # Handle headers
-fs = import('fs')
-
 if not get_option('build_without_lapack')
   lapacke_root = 'lapack-netlib/LAPACKE/include'
   lapacke_headers = [ 'lapack.h', 'lapacke_config.h', 'lapacke.h', 'lapacke_mangling.h', 'lapacke_utils.h', ]
