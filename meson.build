@@ -503,6 +503,37 @@ config_h = custom_target('config_h',
                          capture: true,
                         )
 
+# Parse config back in
+_config_h_path = meson.current_build_dir() / 'config.h'
+_read_config_py = '../read_config.py'
+
+conf_kconf = custom_target('conf_kconf',
+                          output: 'config.kconf',
+                          command: [
+                            py3,
+                            _read_config_py,
+                            config_h,
+                          ],
+                          depends: [config_h],
+                          capture: true,
+                          )
+
+keyval = import('keyval')
+conf_kv = keyval.load(meson.current_build_dir() / 'config.kconf')
+# NOTE(rg): conf_kv doesn't do any parsing, setup manually
+conf_hdat = configuration_data()
+foreach key,val : conf_kv
+  if 'CHAR' in key
+       conf_hdat.set_quoted(key, val)
+    else
+      conf_hdat.set(key, val)
+  endif
+endforeach
+
+# To check if things are OK
+# configure_file(output : 'dummy_conf.h',
+#                configuration : conf_hdat)
+
 # Ignoring other hostarch checks and conflicts for arch in BSD for now
 _inc = [include_directories('.')]
 subdir('lapack-netlib')
@@ -554,7 +585,8 @@ pcl = custom_target('prepare_config_last',
              exprecision ? '--exprecision' : [],
             ],
   build_by_default : true,
-  depends: config_h,
+  # kconf isn't needed but won't be generated otherwise
+  depends: [ config_h, conf_kconf ],
 )
 
 # Generate the headers
