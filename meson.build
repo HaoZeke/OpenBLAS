@@ -589,6 +589,8 @@ pcl = custom_target('prepare_config_last',
   build_by_default : true,
 )
 
+c_args += meson.get_external_property('archconfig')
+message(c_args)
 # Generate the headers
 custom_target('gen_install_headers',
   output : ['openblas_config.h', 'f77blas.h', 'cblas.h'],
