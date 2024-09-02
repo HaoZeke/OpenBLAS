@@ -74,11 +74,13 @@ exprecision = get_option('exprecision')
 is_linux = host_machine.system() == 'linux'
 is_darwin = host_machine.system() == 'darwin'
 
-if is_linux or is_darwin
-    no_affinity = true
-else
-    no_affinity = false
-endif
+no_affinity = true
+# TODO(mtsokol): Find out in which cases affinity should be on
+# if is_linux or is_darwin
+#     no_affinity = true
+# else
+#     no_affinity = false
+# endif
 
 if cc_id == 'clang'
     asm_name_prefix = '_'
@@ -92,6 +94,12 @@ is_win = host_machine.system() == 'windows' or host_machine.system() == 'cygwin'
 conf_data.set('OS_WINDOWS', is_win)
 hostcpu = host_machine.cpu_family()
 conf_data.set('ARCH', hostcpu.to_upper())
+
+if is_win
+    blas_server_src = 'blas_server_win32.c'
+else
+    blas_server_src = 'blas_server.c'
+endif
 
 defarch_array = [
  # {'system': ['windows', 'cygwin'], 'def': ['OS_WINDOWS']},
@@ -136,12 +144,14 @@ if cpu_fam == 'x86_64'
   _cargs += ['-m64']
 endif
 
-# if fc_id == 'gcc'
-#     add_project_arguments('-DF_INTERFACE_GFORT', language: 'c')
-# else
-#   upper_fcid = fc_id.to_upper()
-#   add_project_arguments(f'-DF_INTERFACE_@upper_fcid@', language: 'c')
-# endif
+quadmath_dep = fc.find_library('quadmath', required: false)
+
+if fc_id == 'gcc'
+    add_project_arguments('-DF_INTERFACE_GFORT', language: 'c')
+else
+  upper_fcid = fc_id.to_upper()
+  add_project_arguments(f'-DF_INTERFACE_@upper_fcid@', language: 'c')
+endif
 
 py3 = find_program('python')
 
@@ -464,6 +474,16 @@ symb_defs = {
     'cblas_?dotc_sub':  {'def': ['CBLAS', 'FORCE_USE_STACK', 'CONJ']},
 }
 
+# 3m_ rules
+m3_startswith = {
+    '3m_i': ['-UUSE_ALPHA'],
+    '3m_o': ['-DUSE_ALPHA'],
+}
+m3_endswith = {
+    'copyr': ['-DREAL_ONLY'],
+    'copyi': ['-DIMAGE_ONLY'],
+}
+
 # config.h file generation
 
 _config_h = meson.current_build_dir() / 'config.h'
@@ -549,7 +569,7 @@ openblas = both_libraries('openblas',
                            _others,
                            _kern,
                           ],
-                          dependencies: [dependency('threads')],
+                          dependencies: [dependency('threads'), quadmath_dep],
                           override_options: ['b_lundef=false', 'b_asneeded=false'],
                           install: true,
                          )
