@@ -89,11 +89,11 @@ else
 endif
 
 _check_prefix = []
-conf_data = configuration_data()
+getarch_data = configuration_data()
 is_win = host_machine.system() == 'windows' or host_machine.system() == 'cygwin'
-conf_data.set('OS_WINDOWS', is_win)
+getarch_data.set('OS_WINDOWS', is_win)
 hostcpu = host_machine.cpu_family()
-conf_data.set('ARCH', hostcpu.to_upper())
+getarch_data.set('ARCH', hostcpu.to_upper())
 
 if is_win
     blas_server_src = 'blas_server_win32.c'
@@ -123,12 +123,12 @@ defarch_array = [
 foreach arch : defarch_array
   is_cpu = hostcpu in arch['cpu']
   foreach def : arch['def']
-    conf_data.set(def, is_cpu)
+    getarch_data.set(def, is_cpu)
   endforeach
 endforeach
 
 configure_file(output : 'getarch_conf.h',
-               configuration : conf_data)
+               configuration : getarch_data)
 
 # Makefile.system
 cpu_fam = target_machine.cpu_family()
@@ -486,10 +486,101 @@ m3_endswith = {
 
 # config.h file generation
 
-_config_h = meson.current_build_dir() / 'config.h'
-_makefile_conf = meson.current_build_dir() / 'Makefile.conf'
-run_command('./c_check', _makefile_conf, _config_h, cc_id, check: true)
-run_command('./f_check', _makefile_conf, _config_h, fc_id, check: true)
+# TODO(rg) : Should these be host or build or target?
+
+config_h_dat = configuration_data()
+
+# Start of c_check
+
+hm_sys = host_machine.system().to_upper()
+hm_cpu = host_machine.cpu().to_upper()
+hm_ccid = cc.get_id().to_upper()
+hm_fcid = fc.get_id().to_upper()
+hm_isc11 = cc.has_header('stdatomic.h')
+has_thread = dependency('threads', required: false)
+
+config_h_dat.set10(f'ARCH_@hm_cpu@', true)
+config_h_dat.set10(f'OS_@hm_sys@', true)
+config_h_dat.set10(f'C_@hm_ccid@', true)
+config_h_dat.set10('HAVE_C11', hm_isc11)
+
+if hm_sys == 'LINUX' and has_thread.found()
+  # TODO(rg): This seems oddly specific..
+  config_h_dat.set('PTHREAD_CREATE_FUNC', 'pthread_create')
+endif
+
+if cc.symbols_have_underscore_prefix()
+    config_h_dat.set10('FUNDERSCORE', true)
+endif
+
+# __64__ and friends
+# NOTE(rg):: This is wrong on specialist/niche platforms [1, 2]
+# [1] https://stackoverflow.com/a/11707069/1895378
+# [2] https://stackoverflow.com/a/3853329/1895378
+vptrsize = cc.sizeof('void*') * 8
+config_h_dat.set10(f'__@vptrsize@BIT__', true)
+
+# End of c_check
+
+fs = import('fs')
+# Start of f_check
+
+# XXX(rg): This is actually to be set via compile and symbol name checks in f_check
+f77_undercode = '''
+      real function fakefun()
+      fakefun = 0
+      return
+      end
+      program main
+      end
+'''
+
+if fc.get_id() == 'gcc'
+  config_h_dat.set('BUNDERSCORE', '_')
+  config_h_dat.set10('NEEDBUNDERSCORE', true)
+endif
+
+# if fc.symbols_have_underscore_prefix()
+#     config_h_dat.set10('BUNDERSCORE', true)
+# endif
+
+
+# End of f_check
+
+# Start getarch
+
+# Define a C code snippet to check for the CMOV feature
+cmov_code = '''
+#include <stdio.h>
+#include <cpuid.h>
+
+int main() {
+    unsigned int eax, ebx, ecx, edx;
+    __cpuid(1, eax, ebx, ecx, edx);
+
+    if (edx & (1 << 24)) {
+        printf("1");
+    } else {
+        printf("0");
+    }
+
+    return 0;
+}
+'''
+
+# Run the CMOV detection code
+cmov_result = cc.run(cmov_code, name: 'Check CMOV Feature')
+cmov_supported = cmov_result.stdout().strip() == '1'
+
+# End getarch
+
+configure_file(output : '_conf_meson.h',
+               configuration : config_h_dat)
+
+# _config_1_path = meson.current_build_dir() / '_config_1.h'
+# _join_files_py = '../join_files.py'
+# run_command('./c_check', 'Makefile.conf', _config_1_path, cc_id, check: true)
+# run_command('./f_check', 'Makefile.conf', _config_1_path, fc_id, check: true)
 
 run_command(cc_id, '-o', 'getarch', 'getarch.c', 'cpuid.S', check: true)
 _getarch_1_result = run_command('./getarch', '1', check: true, capture: true)
@@ -525,6 +616,18 @@ run_command(py3,
             _makefile_conf,
             check: true)
 
+error('Stop')
+_config_for_getarch_2nd_h = custom_target('_config_for_getarch_2nd_h',
+                                          output: '_config_for_getarch_2nd.h',
+                                          command: [
+                                            py3,
+                                            _join_files_py,
+                                            _config_1_path,
+                                            _config_2h,
+                                          ],
+                                          depends: [_config_2h],
+                                          capture: true,
+                                         )
 
 _read_config_py = './read_config.py'
 
@@ -576,8 +679,6 @@ openblas = both_libraries('openblas',
 openblas_static = openblas.get_static_lib()
 
 # Handle headers
-fs = import('fs')
-
 if not get_option('build_without_lapack')
   lapacke_root = 'lapack-netlib/LAPACKE/include'
   lapacke_headers = [ 'lapack.h', 'lapacke_config.h', 'lapacke.h', 'lapacke_mangling.h', 'lapacke_utils.h', ]
