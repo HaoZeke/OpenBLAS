@@ -698,3 +698,6 @@ netlib_lapack_dep = declare_dependency(
   include_directories : _inc,
   version: meson.project_version(),
 )
+
+pkg = import('pkgconfig')
+pkg.generate(openblas)
