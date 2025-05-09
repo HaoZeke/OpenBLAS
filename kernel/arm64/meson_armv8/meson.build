@@ -141,7 +141,7 @@ arm64_armv8_dict = {
         },
         'zd': {
             '_k': 'arm64/zrot.S',
-        }
+        },
     },
     '?scal': {
         's': {
@@ -308,13 +308,13 @@ arm64_armv8_dict = {
             '_incopy': 'generic/zgemm_ncopy_8.c',
             '_itcopy': 'generic/zgemm_tcopy_8.c',
             '_oncopy': 'generic/zgemm_ncopy_4.c',
-            '_otcopy': 'generic/zgemm_tcopy_4.c'
+            '_otcopy': 'generic/zgemm_tcopy_4.c',
         },
         'z': {
             '_incopy': 'generic/zgemm_ncopy_4.c',
             '_itcopy': 'generic/zgemm_tcopy_4.c',
             '_oncopy': 'generic/zgemm_ncopy_4.c',
-            '_otcopy': 'generic/zgemm_tcopy_4.c'
+            '_otcopy': 'generic/zgemm_tcopy_4.c',
         },
     },
     '?trmm_kernel': {

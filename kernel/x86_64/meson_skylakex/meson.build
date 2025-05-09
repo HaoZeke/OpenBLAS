@@ -79,7 +79,7 @@ x86_64_skylakex_dict = {
             '_incopy': 'generic/gemm_ncopy_16.c',
             '_itcopy': 'x86_64/sgemm_tcopy_16_skylakex.c',
             '_oncopy': 'x86_64/sgemm_ncopy_4_skylakex.c',
-            '_otcopy': 'generic/gemm_tcopy_4.c'
+            '_otcopy': 'generic/gemm_tcopy_4.c',
         },
         'd': {
             '_small_matrix_permit': 'x86_64/dgemm_small_kernel_permit_skylakex.c',
