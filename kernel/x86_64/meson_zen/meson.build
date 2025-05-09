@@ -188,7 +188,7 @@ x86_64_zen_dict = {
             '_incopy': 'generic/gemm_ncopy_8.c',
             '_itcopy': 'generic/gemm_tcopy_8.c',
             '_oncopy': 'generic/gemm_ncopy_4.c',
-            '_otcopy': 'generic/gemm_tcopy_4.c'
+            '_otcopy': 'generic/gemm_tcopy_4.c',
         },
         'd': {
             '_incopy': 'generic/gemm_ncopy_4.c',
@@ -200,13 +200,13 @@ x86_64_zen_dict = {
             '_incopy': 'generic/zgemm_ncopy_8.c',
             '_itcopy': 'generic/zgemm_tcopy_8.c',
             '_oncopy': 'generic/zgemm_ncopy_2.c',
-            '_otcopy': 'generic/zgemm_tcopy_2.c'
+            '_otcopy': 'generic/zgemm_tcopy_2.c',
         },
         'z': {
             '_incopy': 'generic/zgemm_ncopy_4.c',
             '_itcopy': 'generic/zgemm_tcopy_4.c',
             '_oncopy': 'generic/zgemm_ncopy_2.c',
-            '_otcopy': 'generic/zgemm_tcopy_2.c'
+            '_otcopy': 'generic/zgemm_tcopy_2.c',
         },
     },
     '?gemm3m': {

@@ -181,7 +181,7 @@ x86_64_sandybridge_dict = {
             '_incopy': 'generic/gemm_ncopy_16.c',
             '_itcopy': 'generic/gemm_tcopy_16.c',
             '_oncopy': 'generic/gemm_ncopy_4.c',
-            '_otcopy': 'generic/gemm_tcopy_4.c'
+            '_otcopy': 'generic/gemm_tcopy_4.c',
         },
         'd': {
             '_incopy': 'generic/gemm_ncopy_8.c',
@@ -193,13 +193,13 @@ x86_64_sandybridge_dict = {
             '_incopy': 'generic/zgemm_ncopy_8.c',
             '_itcopy': 'generic/zgemm_tcopy_8.c',
             '_oncopy': 'generic/zgemm_ncopy_2.c',
-            '_otcopy': 'generic/zgemm_tcopy_2.c'
+            '_otcopy': 'generic/zgemm_tcopy_2.c',
         },
         'z': {
             '_incopy': 'x86_64/zgemm_ncopy_1.S',
             '_itcopy': 'x86_64/zgemm_tcopy_1.S',
             '_oncopy': 'generic/zgemm_ncopy_4.c',
-            '_otcopy': 'generic/zgemm_tcopy_4.c'
+            '_otcopy': 'generic/zgemm_tcopy_4.c',
         },
     },
     '?gemm3m': {

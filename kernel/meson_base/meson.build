@@ -138,7 +138,7 @@ base_dict = {
             '_itcopyb': f'generic/zgemm3m_tcopy_@ZGEMM3M_UNROLL_M@.c',
             '_itcopyi': f'generic/zgemm3m_tcopy_@ZGEMM3M_UNROLL_M@.c',
             '_itcopyr': f'generic/zgemm3m_tcopy_@ZGEMM3M_UNROLL_M@.c',
-        }
+        },
     },
     '?trmm': {
         's': {
