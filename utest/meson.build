@@ -87,9 +87,7 @@ utest_inc = _inc + [include_directories('.')]
 
 # TODO(rg): Can this be fixed?
 # ‘strsignal’ in utest, seems like a false positive
-_utest_nowarn = cc.get_supported_arguments(
-  '-Wno-implicit-function-declaration',
-)
+_utest_nowarn = cc.get_supported_arguments('-Wno-implicit-function-declaration')
 
 openblas_utest_exec = executable(
     'openblas_utest',

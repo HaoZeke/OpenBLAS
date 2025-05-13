@@ -12,7 +12,7 @@ x86_64_base_dict = {
         },
         'zd': {
             '_k': 'x86_64/zrot_sse2.S',
-        }
+        },
     },
     '?swap': {
         's': {
@@ -306,7 +306,7 @@ x86_64_base_dict = {
     '?lsame': {
         '': {
             '': 'x86_64/lsame.S',
-        }
+        },
     },
     '?cabs': {
         's': {
@@ -316,9 +316,7 @@ x86_64_base_dict = {
             '1': 'x86_64/cabs.S',
         },
     },
-    '?gemm3m': {
-
-    },
+    '?gemm3m': {},
     '?hemv': {
         'z': {
             '_U': 'x86_64/zsymv_U_sse2.S',
@@ -328,13 +326,13 @@ x86_64_base_dict = {
     # Level 3 BLAS
     '?gemm_kernel': {
         # done
-    },
+},
     '?trmm_kernel': {
         # done
-    },
+},
     '?trsm_kernel': {
         # done
-    },
+},
     '?gemm': {
         's': {
             '_beta': 'x86_64/gemm_beta.S',
@@ -350,33 +348,15 @@ x86_64_base_dict = {
             '_beta': 'x86_64/zgemm_beta.S',
         },
     },
-    '?trmm': {
-
-    },
-    '?hemm': {
-
-    },
-    '?trsm': {
-
-    },
-    '?symm': {
-
-    },
-    '?omatcopy_k': {
-
-    },
-    '?imatcopy_k': {
-
-    },
-    '?geadd': {
-
-    },
-    '?gemm_small_kernel': {
-
-    },
-    '?gemm_small_kernel_b0': {
-
-    },
+    '?trmm': {},
+    '?hemm': {},
+    '?trsm': {},
+    '?symm': {},
+    '?omatcopy_k': {},
+    '?imatcopy_k': {},
+    '?geadd': {},
+    '?gemm_small_kernel': {},
+    '?gemm_small_kernel_b0': {},
 }
 
 subdir('meson_haswell')

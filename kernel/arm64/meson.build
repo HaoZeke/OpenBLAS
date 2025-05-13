@@ -7,7 +7,7 @@ arm64_base_dict = {
             '_k': 'arm64/sum.S',
         },
         'c': {
-            '_k': 'arm64/csum.S'
+            '_k': 'arm64/csum.S',
         },
         'z': {
             '_k': 'arm64/zsum.S',
@@ -38,7 +38,7 @@ arm64_base_dict = {
     '?lsame': {
         '': {
             '': 'generic/lsame.c',
-        }
+        },
     },
     '?gemm': {
         's': {
