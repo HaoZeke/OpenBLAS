@@ -283,11 +283,12 @@ if host_machine.cpu_family() == 'x86_64'
             'define': 'HAVE_AVX2',
         },
         # XXX: These break tests for some reason
-        # {'flag': '-mavx512f', 'define': 'HAVE_AVX512F'},
-        # {'flag': '-mavx512vl', 'define': 'HAVE_AVX512VL'},
-        # {'flag': '-mavx512dq', 'define': 'HAVE_AVX512DQ'},
-        # {'flag': '-mavx512cd', 'define': 'HAVE_AVX512CD'},
-        # {'flag': '-march=skylake-avx512', 'define': 'HAVE_AVX512'},
+        # Needed for LAPACK when AVX512 is present
+        {'flag': '-mavx512f', 'define': 'HAVE_AVX512F'},
+        {'flag': '-mavx512vl', 'define': 'HAVE_AVX512VL'},
+        {'flag': '-mavx512dq', 'define': 'HAVE_AVX512DQ'},
+        {'flag': '-mavx512cd', 'define': 'HAVE_AVX512CD'},
+        {'flag': '-march=skylake-avx512', 'define': 'HAVE_AVX512'},
     ]
 endif
 
