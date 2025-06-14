@@ -1,20 +1,25 @@
-add_languages('fortran', native: false)
-ff = meson.get_compiler('fortran')
+add_languages(
+    'fortran',
+    native: false,
+)
 # TODO(mtsokol): make it a local setting
-# if ff.has_argument('-Wno-conversion')
+# if fc.has_argument('-Wno-conversion')
 #   add_project_arguments('-Wno-conversion', language: 'fortran')
 # endif
 
-lapack_major_version = 3 # soversion
+lapack_major_version = 3  # soversion
 lapack_minor_version = 12
 lapack_patch_version = 0
 lapack_version = f'@lapack_major_version@.@lapack_minor_version@.@lapack_patch_version@'
 
 if as_subproject
-  # Avoid creation versioned .so symlinks.
-  lapack_version_kwargs = {}
+    # Avoid creation versioned .so symlinks.
+    lapack_version_kwargs = {}
 else
-  lapack_version_kwargs = {'version': lapack_version, 'soversion': lapack_major_version}
+    lapack_version_kwargs = {
+        'version': lapack_version,
+        'soversion': lapack_major_version,
+    }
 endif
 
 # Common variables
@@ -28,6 +33,6 @@ use_c_lapack = get_option('use_c_lapack')
 use_xblas = get_option('use_xblas')
 
 # Sub-directories
-subdir('BLAS') # Defines netlib_blas and _allblas
-subdir('INSTALL') # Defines _install_aux and _int_cpu_time
-subdir('SRC') # Defines netlib_lapack
+subdir('BLAS')  # Defines netlib_blas and _allblas
+subdir('INSTALL')  # Defines _install_aux and _int_cpu_time
+subdir('SRC')  # Defines netlib_lapack
