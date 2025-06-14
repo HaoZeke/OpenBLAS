@@ -25,10 +25,10 @@ openblas_version = f'@openblas_major_version@.@openblas_minor_version@.@openblas
 
 supported_architectures = ['x86_64', 'aarch64']
 if host_machine.cpu_family() not in supported_architectures
-    cpu_family = host_machine.cpu_family()
-    error(
-        f'Building OpenBLAS with Meson is currently not supported on @cpu_family@.',
-    )
+  cpu_family = host_machine.cpu_family()
+  error(
+    f'unsupported architecture: Building OpenBLAS with Meson is currently not supported on @cpu_family@.',
+  )
 endif
 
 # why not just  (not meson.is_subproject())
